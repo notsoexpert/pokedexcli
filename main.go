@@ -3,25 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"strings"
+	"os"
 )
-
-var cliCommands map[string]cliCommand
-
-func init() {
-	cliCommands = make(map[string]cliCommand)
-	cliCommands["exit"] = cliCommand{
-		name:        "exit",
-		description: "Exit the Pokedex",
-		callback:    commandExit,
-	}
-	cliCommands["help"] = cliCommand{
-		name:        "help",
-		description: "Displays a help message",
-		callback:    commandHelp,
-	}
-}
 
 func main() {
 
@@ -61,18 +45,4 @@ func cleanInput(text string) []string {
 		}
 	}
 	return cleanedInput
-}
-
-func commandExit() error {
-	fmt.Println("Closing the Pokedex... Goodbye!")
-	os.Exit(0)
-	return nil
-}
-
-func commandHelp() error {
-	fmt.Printf("Welcome to the Pokedex!\nUsage:\n\n")
-	for _, cliCommand := range cliCommands {
-		fmt.Printf("%s: %s\n", cliCommand.name, cliCommand.description)
-	}
-	return nil
 }
