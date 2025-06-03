@@ -8,8 +8,10 @@ import (
 )
 
 func main() {
-
 	scanner := bufio.NewScanner(os.Stdin)
+	var location Location
+	location.Current = "https://pokeapi.co/api/v2/location-area/"
+
 	for {
 		fmt.Print("Pokedex > ")
 		if scanner.Scan() {
@@ -25,7 +27,7 @@ func main() {
 				continue
 			}
 
-			err := command.callback()
+			err := command.callback(&location)
 			if err != nil {
 				fmt.Printf("%s", err)
 			}
