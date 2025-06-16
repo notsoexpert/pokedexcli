@@ -26,14 +26,14 @@ func init() {
 		callback:    commandHelp,
 	}
 	cliCommands["map"] = cliCommand{
-		name:			"map",
-		description:	"Displays the names of 20 locations procedurally",
-		callback:		commandMap,
+		name:        "map",
+		description: "Displays the names of 20 locations procedurally",
+		callback:    commandMap,
 	}
 	cliCommands["mapb"] = cliCommand{
-		name:			"mapb",
-		description:	"Displays the names of the previous 20 locations from 'map'",
-		callback:		commandMapB,
+		name:        "mapb",
+		description: "Displays the names of the previous 20 locations from 'map'",
+		callback:    commandMapB,
 	}
 }
 
@@ -89,7 +89,7 @@ func commandMapB(location *Location) error {
 	if err != nil {
 		return err
 	}
-	
+
 	location.Current = url
 	printLocations(location)
 	return nil

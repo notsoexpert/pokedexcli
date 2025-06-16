@@ -1,26 +1,35 @@
 package main
 
 import (
-	"fmt"
 	"encoding/json"
-	"net/http"
+	"fmt"
 	"io"
+	"net/http"
+	"time"
+
+	"github.com/notsoexpert/pokedexcli/internal/pokecache"
 )
 
 type Location struct {
-	Count    int    		`json:"count"`
-	Current  string			`json:"-"`
-	Next     *string 		`json:"next"`
-	Previous *string 		`json:"previous"`
-	EndPoints []EndPoint	`json:"results"`
-}	
-
-type EndPoint struct {
-	Name string 	`json:"name"`
-	URL  string 	`json:"url"`
+	Count     int        `json:"count"`
+	Current   string     `json:"-"`
+	Next      *string    `json:"next"`
+	Previous  *string    `json:"previous"`
+	EndPoints []EndPoint `json:"results"`
 }
 
-func retrieveLocationData(url string, location *Location) ([]byte, error) {
+type EndPoint struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
+var gLocalCache *pokecache.Cache
+
+func init() {
+	gLocalCache = pokecache.NewCache(5 * time.Second)
+}
+
+func retrieveLocationData(url string) ([]byte, error) {
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -35,20 +44,24 @@ func retrieveLocationData(url string, location *Location) ([]byte, error) {
 }
 
 func unmarshalLocations(jsonData []byte, location *Location) error {
-    if err := json.Unmarshal(jsonData, location); err != nil {
-        return fmt.Errorf("Error unmarshalling JSON: %w", err)
-    }
-    return nil
+	if err := json.Unmarshal(jsonData, location); err != nil {
+		return fmt.Errorf("error unmarshalling JSON: %w", err)
+	}
+	return nil
 }
 
 func updateLocations(url string, location *Location) error {
-	var body []byte
-	body, err := retrieveLocationData(url, location)
-	if err != nil {
-		return err
+	body, ok := gLocalCache.Get(url)
+	if !ok {
+		var err error
+		body, err = retrieveLocationData(url)
+		if err != nil {
+			return err
+		}
+		gLocalCache.Add(url, body)
 	}
 
-	err = unmarshalLocations(body, location)
+	err := unmarshalLocations(body, location)
 	if err != nil {
 		return err
 	}
