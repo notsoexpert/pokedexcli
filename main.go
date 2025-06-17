@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/notsoexpert/pokedexcli/internal/pokecommand"
+	"github.com/notsoexpert/pokedexcli/internal/pokelocation"
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	var location Location
+	var location pokelocation.Location
 	location.Current = "https://pokeapi.co/api/v2/location-area/"
 
 	for {
@@ -21,13 +24,13 @@ func main() {
 				continue
 			}
 
-			command, ok := cliCommands[cleanedInput[0]]
+			command, ok := pokecommand.Execute(cleanedInput[0])
 			if !ok {
 				fmt.Println("Unknown command")
 				continue
 			}
 
-			err := command.callback(&location)
+			err := command.Callback(&location)
 			if err != nil {
 				fmt.Printf("%s", err)
 			}

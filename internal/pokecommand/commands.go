@@ -1,57 +1,59 @@
-package main
+package pokecommand
 
 import (
 	"fmt"
 	"os"
+
+	"github.com/notsoexpert/pokedexcli/internal/pokelocation"
 )
 
-type cliCommand struct {
+type CLICommand struct {
 	name        string
 	description string
-	callback    func(*Location) error
+	Callback    func(*pokelocation.Location) error
 }
 
-var cliCommands map[string]cliCommand
+var gCommands map[string]CLICommand
 
 func init() {
-	cliCommands = make(map[string]cliCommand)
-	cliCommands["exit"] = cliCommand{
+	gCommands = make(map[string]CLICommand)
+	gCommands["exit"] = CLICommand{
 		name:        "exit",
 		description: "Exit the Pokedex",
-		callback:    commandExit,
+		Callback:    commandExit,
 	}
-	cliCommands["help"] = cliCommand{
+	gCommands["help"] = CLICommand{
 		name:        "help",
 		description: "Displays a help message",
-		callback:    commandHelp,
+		Callback:    commandHelp,
 	}
-	cliCommands["map"] = cliCommand{
+	gCommands["map"] = CLICommand{
 		name:        "map",
 		description: "Displays the names of 20 locations procedurally",
-		callback:    commandMap,
+		Callback:    commandMap,
 	}
-	cliCommands["mapb"] = cliCommand{
+	gCommands["mapb"] = CLICommand{
 		name:        "mapb",
 		description: "Displays the names of the previous 20 locations from 'map'",
-		callback:    commandMapB,
+		Callback:    commandMapB,
 	}
 }
 
-func commandExit(location *Location) error {
+func commandExit(location *pokelocation.Location) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(location *Location) error {
+func commandHelp(location *pokelocation.Location) error {
 	fmt.Printf("Welcome to the Pokedex!\nUsage:\n\n")
-	for _, cliCommand := range cliCommands {
+	for _, cliCommand := range gCommands {
 		fmt.Printf("%s: %s\n", cliCommand.name, cliCommand.description)
 	}
 	return nil
 }
 
-func commandMap(location *Location) error {
+func commandMap(location *pokelocation.Location) error {
 	var url string
 
 	if location.Next == nil {
@@ -65,17 +67,17 @@ func commandMap(location *Location) error {
 		url = *location.Next
 	}
 
-	err := updateLocations(url, location)
+	err := pokelocation.UpdateLocations(url, location)
 	if err != nil {
 		return err
 	}
 
 	location.Current = url
-	printLocations(location)
+	pokelocation.PrintLocations(location)
 	return nil
 }
 
-func commandMapB(location *Location) error {
+func commandMapB(location *pokelocation.Location) error {
 	var url string
 
 	if location.Previous == nil {
@@ -85,12 +87,17 @@ func commandMapB(location *Location) error {
 		url = *location.Previous
 	}
 
-	err := updateLocations(url, location)
+	err := pokelocation.UpdateLocations(url, location)
 	if err != nil {
 		return err
 	}
 
 	location.Current = url
-	printLocations(location)
+	pokelocation.PrintLocations(location)
 	return nil
+}
+
+func Execute(key string) (CLICommand, bool) {
+	cmd, ok := gCommands[key]
+	return cmd, ok
 }

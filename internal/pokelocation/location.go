@@ -1,4 +1,4 @@
-package main
+package pokelocation
 
 import (
 	"encoding/json"
@@ -50,7 +50,7 @@ func unmarshalLocations(jsonData []byte, location *Location) error {
 	return nil
 }
 
-func updateLocations(url string, location *Location) error {
+func UpdateLocations(url string, location *Location) error {
 	body, ok := gLocalCache.Get(url)
 	if !ok {
 		var err error
@@ -68,7 +68,7 @@ func updateLocations(url string, location *Location) error {
 	return nil
 }
 
-func printLocations(location *Location) {
+func PrintLocations(location *Location) {
 	for _, result := range location.EndPoints {
 		fmt.Printf("%s\n", result.Name)
 	}
