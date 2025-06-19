@@ -6,14 +6,14 @@ import (
 	"os"
 	"strings"
 
+	"github.com/notsoexpert/pokedexcli/internal/pokeapi"
 	"github.com/notsoexpert/pokedexcli/internal/pokecommand"
-	"github.com/notsoexpert/pokedexcli/internal/pokelocation"
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	var location pokelocation.Location
-	location.Current = "https://pokeapi.co/api/v2/location-area/"
+	var location pokeapi.Location
+	location.Base = "https://pokeapi.co/api/v2/location-area/"
 
 	for {
 		fmt.Print("Pokedex > ")
@@ -23,6 +23,7 @@ func main() {
 			if len(cleanedInput) == 0 {
 				continue
 			}
+			cleanedInput = append(cleanedInput, "")
 
 			command, ok := pokecommand.Execute(cleanedInput[0])
 			if !ok {
@@ -30,7 +31,7 @@ func main() {
 				continue
 			}
 
-			err := command.Callback(&location)
+			err := command.Callback(&location, cleanedInput[1])
 			if err != nil {
 				fmt.Printf("%s", err)
 			}
